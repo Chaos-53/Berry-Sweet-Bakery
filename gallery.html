@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gallery — Berry Sweet Bakery</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Pinyon+Script&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #f4a7b9;
+    --pink-light: #fce4ec;
+    --pink-pale: #fdf0f3;
+    --pink-dark: #c2607a;
+    --cream: #fdf8f5;
+    --brown: #5c3a2e;
+    --text: #3a2228;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  /* Background on body — no fixed overlay div, no z-index battles */
+  body {
+    font-family: 'Lato', sans-serif;
+    color: var(--text);
+    overflow-x: hidden;
+    background-color: var(--pink-pale);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cg fill='none' stroke='%23e88fa3' stroke-width='1' opacity='0.18'%3E%3Cellipse cx='40' cy='38' rx='18' ry='14'/%3E%3Crect x='22' y='38' width='36' height='24' rx='4'/%3E%3Cellipse cx='40' cy='62' rx='18' ry='6'/%3E%3Cpath d='M30 35 Q40 22 50 35'/%3E%3Ccircle cx='40' cy='24' r='5'/%3E%3Cellipse cx='120' cy='108' rx='18' ry='14'/%3E%3Crect x='102' y='108' width='36' height='24' rx='4'/%3E%3Cellipse cx='120' cy='132' rx='18' ry='6'/%3E%3Cpath d='M110 105 Q120 92 130 105'/%3E%3Ccircle cx='120' cy='94' r='5'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* ---- NAVBAR ---- */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 48px;
+    background: rgba(253,248,245,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1.5px solid var(--pink-light);
+  }
+
+  .nav-logo {
+    font-family: 'Pinyon Script', cursive;
+    font-size: 2rem;
+    color: var(--pink-dark);
+    text-decoration: none;
+  }
+
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+
+  .nav-links a {
+    text-decoration: none;
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brown);
+    font-weight: 700;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover, .nav-links a.active { color: var(--pink-dark); }
+
+  .nav-cta {
+    background: var(--pink-dark);
+    color: #fff !important;
+    padding: 10px 24px;
+    border-radius: 50px;
+  }
+
+  .nav-cta:hover { background: var(--pink) !important; }
+
+  /* ---- PAGE HEADER ---- */
+  .page-header {
+    text-align: center;
+    padding: 140px 24px 48px;
+  }
+
+  .section-label {
+    display: inline-block;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--pink-dark);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+
+  .page-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    color: var(--brown);
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+
+  .page-header h1 em { font-style: italic; color: var(--pink-dark); }
+
+  .page-header p {
+    font-size: 1rem;
+    color: #7a5060;
+    max-width: 460px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* ---- FILTER BAR ---- */
+  .filter-bar {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 36px 24px 48px;
+  }
+
+  .filter-btn {
+    background: #fff;
+    border: 1.5px solid var(--pink-light);
+    color: var(--brown);
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Lato', sans-serif;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--pink-dark);
+    border-color: var(--pink-dark);
+    color: #fff;
+  }
+
+  /* ---- GALLERY ---- */
+  .gallery-section {
+    padding: 0 40px 80px;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  .gallery-grid { columns: 3; column-gap: 20px; }
+
+  .gallery-item {
+    break-inside: avoid;
+    margin-bottom: 20px;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    border: 1.5px solid var(--pink-light);
+    transition: transform 0.3s, box-shadow 0.3s;
+    background: var(--pink-light);
+  }
+
+  .gallery-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(200,90,120,0.18);
+  }
+
+  .gallery-placeholder {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--pink-light), var(--pink-pale));
+    padding: 40px 20px;
+    gap: 12px;
+  }
+
+  .ph-tall   { min-height: 300px; }
+  .ph-medium { min-height: 220px; }
+  .ph-short  { min-height: 180px; }
+  .ph-icon   { font-size: 3.5rem; }
+
+  .ph-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    color: var(--pink-dark);
+    font-style: italic;
+    text-align: center;
+  }
+
+  .ph-tag {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--pink-dark);
+    font-weight: 700;
+    background: #fff;
+    padding: 4px 14px;
+    border-radius: 50px;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(194,96,122,0.7), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+    display: flex;
+    align-items: flex-end;
+    padding: 20px;
+  }
+
+  .gallery-item:hover .overlay { opacity: 1; }
+
+  .overlay-text {
+    color: #fff;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  /* ---- UPLOAD NOTICE ---- */
+  .upload-notice {
+    max-width: 860px;
+    margin: 0 auto 80px;
+    background: #fff;
+    border: 2px dashed var(--pink);
+    border-radius: 20px;
+    padding: 36px 32px;
+    text-align: center;
+  }
+
+  .upload-notice .notice-icon { font-size: 2.2rem; margin-bottom: 12px; }
+
+  .upload-notice h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--brown);
+    margin-bottom: 8px;
+  }
+
+  .upload-notice p { font-size: 0.88rem; color: #a07080; line-height: 1.6; }
+
+  /* ---- CTA BANNER ---- */
+  .cta-banner {
+    background: var(--pink-dark);
+    padding: 72px 48px;
+    text-align: center;
+  }
+
+  .cta-banner h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    color: #fff;
+    margin-bottom: 12px;
+  }
+
+  .cta-banner h2 em { font-style: italic; color: var(--pink-light); }
+  .cta-banner p { color: rgba(255,255,255,0.85); font-size: 1rem; margin-bottom: 32px; }
+
+  .btn-white {
+    background: #fff;
+    color: var(--pink-dark);
+    border: none;
+    padding: 16px 40px;
+    border-radius: 50px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+
+  .btn-white:hover { transform: translateY(-2px); }
+
+  /* ---- FOOTER ---- */
+  footer {
+    background: var(--brown);
+    color: #f9e0e8;
+    text-align: center;
+    padding: 40px 24px;
+  }
+
+  footer .footer-logo {
+    font-family: 'Pinyon Script', cursive;
+    font-size: 2.4rem;
+    color: var(--pink);
+    margin-bottom: 12px;
+  }
+
+  footer p { font-size: 0.82rem; opacity: 0.6; margin-top: 8px; }
+
+  /* ---- LIGHTBOX ---- */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(58,34,40,0.92);
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .lightbox.open { display: flex; }
+
+  .lightbox-inner {
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    max-width: 860px;
+    width: 100%;
+    position: relative;
+    animation: popIn 0.25s ease;
+  }
+
+  .lightbox-body {
+    background: linear-gradient(135deg, var(--pink-light), var(--pink-pale));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 40px;
+    min-height: 320px;
+    gap: 16px;
+  }
+
+  .lb-icon { font-size: 5rem; }
+
+  .lb-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--brown);
+    font-style: italic;
+  }
+
+  .lb-tag {
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--pink-dark);
+    font-weight: 700;
+    background: #fff;
+    padding: 5px 16px;
+    border-radius: 50px;
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 14px; right: 14px;
+    background: var(--pink-pale);
+    border: none;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    cursor: pointer;
+    color: var(--pink-dark);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  @media (max-width: 900px) { .gallery-grid { columns: 2; } }
+
+  @media (max-width: 768px) {
+    nav { padding: 14px 20px; }
+    .nav-links { display: none; }
+    .gallery-section { padding: 0 16px 60px; }
+    .gallery-grid { columns: 1; }
+    .cta-banner { padding: 52px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="berry-sweet-bakery.html" class="nav-logo">Berry Sweet Bakery</a>
+  <ul class="nav-links">
+    <li><a href="berry-sweet-bakery.html#offerings">Menu</a></li>
+    <li><a href="gallery.html" class="active">Gallery</a></li>
+    <li><a href="berry-sweet-bakery.html#about">About</a></li>
+    <li><a href="berry-sweet-bakery.html#contact">Contact</a></li>
+    <li><a href="berry-sweet-bakery.html#order" class="nav-cta">Order Now</a></li>
+  </ul>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <span class="section-label">✦ Leah's Creations ✦</span>
+  <h1>A little taste of <em>what we can do</em></h1>
+  <p>Every creation is made from scratch, with love. Browse through some of Leah's past work and get inspired for your own order.</p>
+</div>
+
+<!-- FILTER TABS -->
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterGallery('all', this)">All</button>
+  <button class="filter-btn" onclick="filterGallery('cake', this)">Cakes</button>
+  <button class="filter-btn" onclick="filterGallery('cupcake', this)">Cupcakes</button>
+  <button class="filter-btn" onclick="filterGallery('cookie', this)">Cookies</button>
+  <button class="filter-btn" onclick="filterGallery('treat', this)">Treats &amp; Platters</button>
+</div>
+
+<!-- GALLERY GRID -->
+	
+<!--
+For Copy pasting because I'm lazy:
+
+<div class="gallery-item" data-category="cake" onclick="openLightbox('🎂', 'Custom Birthday Cake', 'Cake')">
+
+<div class="gallery-item" data-category="cookie" onclick="openLightbox('🍪', 'Decorated Sugar Cookies', 'Cookies')">
+
+<div class="gallery-item" data-category="treat" onclick="openLightbox('🍓', 'Berry Treat Platter', 'Treats &amp; Platters')">
+
+<div class="gallery-item" data-category="cupcake" onclick="openLightbox('🌸', 'Buttercream Cupcakes', 'Cupcakes')">
+
+ -->
+<div class="gallery-section">
+  <div class="gallery-grid">
+
+    <div class="gallery-item" data-category="cake" onclick="openLightbox('img/1.jpg', 'Custom Cake', 'Cake')">
+      <img src="img/1.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+
+    <div class="gallery-item" data-category="cake" onclick="openLightbox('img/4.jpg', 'Custom Cake', 'Cake')">
+      <img src="img/4.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+
+    <div class="gallery-item" data-category="cupcake" onclick="openLightbox('img/5.jpg', 'Custom Cake', 'Cupcake')">
+      <img src="img/5.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+
+    <div class="gallery-item" data-category="cake" onclick="openLightbox('img/3.jpg', 'Custom Cake', 'Cake')">
+      <img src="img/3.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+
+    <div class="gallery-item" data-category="cake" onclick="openLightbox('img/2.jpg', 'Custom Cake', 'Cake')">
+      <img src="img/2.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+
+    <div class="gallery-item" data-category="cupcake" onclick="openLightbox('img/6.jpg', 'Custom Cake', 'Cupcake')">
+      <img src="img/6.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+
+    <div class="gallery-item" data-category="cake" onclick="openLightbox('img/7.jpg', 'Custom Cake', 'Cake')">
+      <img src="img/7.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+
+    <div class="gallery-item" data-category="cake" onclick="openLightbox('img/8.jpg', 'Custom Cake', 'Cake')">
+      <img src="img/8.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+
+    <div class="gallery-item" data-category="cake" onclick="openLightbox('img/9.jpg', 'Custom Cake', 'Cake')">
+      <img src="img/9.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+
+    <div class="gallery-item" data-category="cake" onclick="openLightbox('img/10.jpg', 'Custom Cake', 'Cake')">
+      <img src="img/10.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+
+    <div class="gallery-item" data-category="cupcake" onclick="openLightbox('img/11.jpg', 'Custom Cake', 'Cupcake')">
+      <img src="img/11.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+
+    <div class="gallery-item" data-category="cupcake" onclick="openLightbox('img/12.jpg', 'Custom Cake', 'Cupcake')">
+      <img src="img/12.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+	  
+	<div class="gallery-item" data-category="cupcake" onclick="openLightbox('img/13.jpg', 'Custom Cake', 'Cupcake')">
+      <img src="img/13.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+	  
+	<div class="gallery-item" data-category="cake" onclick="openLightbox('img/14.jpg', 'Custom Cake', 'Cake')">
+      <img src="img/14.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+	  
+	<div class="gallery-item" data-category="cake" onclick="openLightbox('img/15.jpg', 'Custom Cake', 'Cake')">
+      <img src="img/15.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+	  
+	<div class="gallery-item" data-category="cupcake" onclick="openLightbox('img/16.jpg', 'Custom Cake', 'Cupcake')">
+      <img src="img/16.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+	  
+	<div class="gallery-item" data-category="cupcake" onclick="openLightbox('img/17.jpg', 'Custom Cake', 'Cupcake')">
+      <img src="img/17.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+	  
+	<div class="gallery-item" data-category="cupcake" onclick="openLightbox('img/18.jpg', 'Custom Cake', 'Cupcake')">
+      <img src="img/18.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+	  
+	<div class="gallery-item" data-category="cake" onclick="openLightbox('img/19.jpg', 'Custom Cake', 'Cake')">
+      <img src="img/19.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+	  
+	<div class="gallery-item" data-category="cake" onclick="openLightbox('img/20.jpg', 'Custom Cake', 'Cake')">
+      <img src="img/20.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+	  
+	<div class="gallery-item" data-category="cake" onclick="openLightbox('img/21.jpg', 'Custom Cake', 'Cake')">
+      <img src="img/21.jpg" alt="Custom Birthday Cake" style="width:100%;display:block;">
+      <div class="overlay"><div class="overlay-text">Custom Cake</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- UPLOAD NOTICE -->
+<div class="upload-notice">
+  <div class="notice-icon">📸</div>
+  <h3>More photos coming soon!</h3>
+  <p>Leah is always baking something new. Check back regularly&nbsp; to see the latest creations     .</p>
+</div>
+
+<!-- CTA BANNER -->
+<div class="cta-banner">
+  <h2>Love what you see? <em>Let's make it yours.</em></h2>
+  <p>Every item is fully customisable — flavour, design, size, and more.</p>
+  <a href="berry-sweet-bakery.html#order" class="btn-white">Place a Custom Order 🍓</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Berry Sweet Bakery</div>
+  <p>Custom Cakes · Cookies · Cupcakes · Treats · Platters</p>
+  <p style="margin-top:20px;">© 2026 Berry Sweet Bakery by Leah · Germiston, Gauteng</p>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <div class="lightbox-inner" id="lightboxInner">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <div id="lightboxBody"></div>
+  </div>
+</div>
+
+<script>
+  function filterGallery(category, btn) {
+    document.querySelectorAll('.filter-btn').forEach(function(b) {
+      b.classList.remove('active');
+    });
+    btn.classList.add('active');
+
+    document.querySelectorAll('.gallery-item').forEach(function(item) {
+      if (category === 'all' || item.getAttribute('data-category') === category) {
+        item.style.display = '';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  }
+
+  function openLightbox(src, title, tag) {
+    var body = document.getElementById('lightboxBody');
+    var isImage = src.indexOf('/') !== -1;
+    if (isImage) {
+      body.innerHTML =
+        '<img src="' + src + '" alt="' + (title||'') + '" style="width:100%;display:block;border-radius:20px 20px 0 0;">' +
+        '<div style="padding:20px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;background:#fff;">' +
+          '<span style="font-family:Playfair Display,serif;font-style:italic;font-size:1.1rem;color:#5c3a2e;">' + (title||'') + '</span>' +
+          '<span style="font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:#c2607a;font-weight:700;background:#fdf0f3;padding:4px 14px;border-radius:50px;">' + (tag||'') + '</span>' +
+        '</div>';
+    } else {
+      body.innerHTML =
+        '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 40px;gap:16px;background:linear-gradient(135deg,#fce4ec,#fdf0f3);min-height:300px;">' +
+          '<div style="font-size:5rem;">' + src + '</div>' +
+          '<div style="font-family:Playfair Display,serif;font-size:1.4rem;color:#5c3a2e;font-style:italic;">' + (title||'') + '</div>' +
+          '<div style="font-size:0.75rem;letter-spacing:0.14em;text-transform:uppercase;color:#c2607a;font-weight:700;background:#fff;padding:5px 16px;border-radius:50px;">' + (tag||'') + '</div>' +
+        '</div>';
+    }
+    document.getElementById('lightbox').classList.add('open');
+  }
+
+  function closeLightbox(e) {
+    if (!e || e.target === document.getElementById('lightbox') || e.target.classList.contains('lightbox-close')) {
+      document.getElementById('lightbox').classList.remove('open');
+    }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') document.getElementById('lightbox').classList.remove('open');
+  });
+</script>
+
+</body>
+</html>
